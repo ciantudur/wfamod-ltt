@@ -1,4 +1,5 @@
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![GitHub license](https://badgen.net/github/license/Naereen/Strapdown.js)](https://github.com/ciantudur/wfamod-ltt/blob/master/LICENSE)
+
 
 <a name="top"></a>
 <br />
