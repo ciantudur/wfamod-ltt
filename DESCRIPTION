@@ -1,7 +1,7 @@
 Package: wfamod-ltt
 Type: Package
 Title: WFAMOD - LAND TRANSACTION TAX MODEL
-Version: 1.0.1-beta
+Version: 1.0.1
 Date: 2022-10-04
 Author: person("Cian", "Sion", "sionc1@cardiff.ac.uk", c("aut", "cre"))
 Maintainer: Cian Sion <sionc1@cardiff.ac.uk>
