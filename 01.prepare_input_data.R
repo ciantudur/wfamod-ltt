@@ -22,13 +22,10 @@
 
 # 1.01 INITIALIZE SCRIPT -------------------------------------------------------
 
-## Remove ## to uncomment and set file path using setwd():
-## setwd("C:/file/path/goes/here")
-
 ## Load required packages
 packages_required <- c("utils", "readODS", "dplyr", "stringr")
 for (pkg in packages_required) {
-  require(pkg, character.only = T)
+  require(pkg, character.only = TRUE)
 }
 
 
@@ -36,7 +33,10 @@ for (pkg in packages_required) {
 # 1.02 FETCH INPUT DATA --------------------------------------------------------
 
 ## Download data from StatsWales
-utils::download.file("https://gov.wales/sites/default/files/statistics-and-research/2022-08/land-transaction-tax-statistics-detailed-analysis-of-transactions-by-transaction-value.ods",
+utils::download.file(
+  paste0("https://gov.wales/sites/default/files/statistics-and-research/2022-",
+         "08/land-transaction-tax-statistics-detailed-analysis-of-transactions-",
+         "by-transaction-value.ods")
   destfile = "data/input/wra_data_raw.ods",
   method = "curl"
 )
@@ -174,7 +174,7 @@ if (unique(check_value_bins) != TRUE) {
 
 
 
-# 1.06 DEDUCT HIGHER RATES FROM RESIDENTIAL TOTAL TO GET MAIN RATE VALUES ------------
+# 1.06 DEDUCT HIGHER RATES FROM RESIDENTIAL TOTAL TO GET MAIN RATE VALUES ------
 
 ## Subset RE and RH transactions into two data frames
 residential <- subset(
