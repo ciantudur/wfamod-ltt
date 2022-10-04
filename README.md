@@ -1,3 +1,5 @@
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 <a name="top"></a>
 <br />
 <p align="center">
@@ -95,8 +97,6 @@ This model has been made possible by the following open-source projects:
 
 
 <!-- MARKDOWN LINKS & IMAGES -->
-[license-shield]: https://img.shields.io/github/license/ciantudur/wfamod-ltt.svg?style=for-the-badge
-[license-url]: https://github.com/ciantudur/wfamod-ltt/blob/master/LICENSE.txt
 [R.js]: https://img.shields.io/badge/r-3864BA?style=for-the-badge&logo=r&logoColor=white
 [R-url]: https://www.r-project.org/
 
