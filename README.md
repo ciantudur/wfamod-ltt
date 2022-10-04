@@ -1,5 +1,3 @@
-[![GNU License][license-shield]][license-url]
-
 <a name="top"></a>
 <br />
 <p align="center">
@@ -69,7 +67,7 @@ The model is currently designed to be run locally. Prospective users should down
 In addition to updating the forecast parameters using the Office for Budget Responsibility's house price and transactions forecast, we hope to continue developing the model by adding new features and improving user accessibility.
 
 
-- [ ] First public release (v1.0.0) **(October 2022)**
+- [X] First public release (v1.0.0-beta) **(October 2022)**
 - [ ] Update parameters using latest OBR forecast **(Late 2022)**
 - [ ] Launch online web interface **(TBC)**
 
@@ -79,7 +77,7 @@ If you have suggestions that would improve the model, please fork the repo and c
 
 ## License
 
-Distributed under the GPL 3.0 License. See `LICENSE.txt` for more information.
+Distributed under the MIT License. See `LICENSE.txt` for more information.
 
 
 ## Contact
