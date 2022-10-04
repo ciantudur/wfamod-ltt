@@ -1,4 +1,4 @@
-[![GitHub license](https://badgen.net/github/license/Naereen/Strapdown.js)](https://github.com/ciantudur/wfamod-ltt/blob/master/LICENSE)
+[![GitHub license](https://badgen.net/github/license/Naereen/Strapdown.js)](https://github.com/ciantudur/wfamod-ltt/blob/master/LICENSE) [![Open issues](https://img.shields.io/github/issues/ciantudur/wfamod-ltt)](https://github.com/ciantudur/wfamod-ltt/issues) 
 
 
 <a name="top"></a>
