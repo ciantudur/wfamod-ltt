@@ -706,7 +706,7 @@ l16b <- NULL
 for (i in 1:length(fye)) {
   value <- length(microdata_final$transactionValue[
     microdata_final$yearCode == fye[i] &
-      microdata_final$transactionTypeCode %in% c("RM", "RH", "NRP", "NRN")
+      microdata_final$transactionTypeCode %in% c("RM", "RH", "NRP")
   ])
   l16b <- append(l16b, c(value, 0, 0))
 }
@@ -714,7 +714,7 @@ n <- 2
 for (i in 1:length(fye)) {
   value <- sum(microdata_final$transactionValue[
     microdata_final$yearCode == fye[i] &
-      microdata_final$transactionTypeCode %in% c("RM", "RH", "NRP", "NRN")
+      microdata_final$transactionTypeCode %in% c()
   ]) / 1000000
   l16b[n] <- value
   n <- n + 3
