@@ -9,7 +9,7 @@
 
 
 # DESCRIPTION:
-# This script checks if required packages are installed and installs them if 
+# This script checks if required packages are installed and installs them if
 # necessary. It only needs to be run once.
 
 
@@ -28,8 +28,4 @@ list_of_packages <- c("dplyr",
 new_packages <- list_of_packages[!(
   list_of_packages %in% installed.packages()[, "Package"])]
 
-if (length(new_packages)) install.packages(new_packages, dependencies = T)
-
-
-
-## END OF SCRIPT
+if (length(new_packages)) install.packages(new_packages, dependencies = TRUE)
