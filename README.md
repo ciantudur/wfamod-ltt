@@ -1,5 +1,8 @@
-[![GitHub license](https://badgen.net/github/license/Naereen/Strapdown.js)](https://github.com/ciantudur/wfamod-ltt/blob/master/LICENSE) [![Open issues](https://img.shields.io/github/issues/ciantudur/wfamod-ltt)](https://github.com/ciantudur/wfamod-ltt/issues) 
-
+[![GitHub license](https://badgen.net/github/license/Naereen/Strapdown.js)](https://github.com/ciantudur/wfamod-ltt/blob/main/LICENSE)
+[![Build](
+https://img.shields.io/github/workflow/status/ciantudur/wfamod-ltt/lintr)](https://github.com/ciantudur/wfamod-ltt/actions/workflows/lintr.yml)
+[![Open issues](https://img.shields.io/github/issues/ciantudur/wfamod-ltt)](https://github.com/ciantudur/wfamod-ltt/issues)
+[![Version](https://img.shields.io/github/v/release/ciantudur/wfamod-ltt?display_name=tag&include_prereleases)](https://github.com/ciantudur/wfamod-ltt/releases)
 
 <a name="top"></a>
 <br />
