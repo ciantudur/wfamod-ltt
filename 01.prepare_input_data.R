@@ -118,12 +118,12 @@ wra_data$baseYear <- base_year
 ## Combine residential price bins to match Higher Residential price bins
 missing_pricebins <- c(71, 73, 75, 77, 79, 87)
 new_bin_description <- c(
-  "£350,001 to Â£360,000",
-  "Â£360,001 to Â£370,000",
-  "Â£370,001 to Â£380,000",
-  "Â£380,001 to Â£390,000",
-  "Â£390,001 to Â£400,000",
-  "Â£650,001 to Â£750,000"
+  "£350,001 to £360,000",
+  "£360,001 to £370,000",
+  "£370,001 to £380,000",
+  "£380,001 to £390,000",
+  "£390,001 to £400,000",
+  "£650,001 to £750,000"
 )
 new_low_bin <- c(350001, 360001, 370001, 380001, 390001, 650001)
 res_temp <- NULL
@@ -149,7 +149,7 @@ for (i in seq_along(missing_pricebins)) {
   wra_data <- rbind(wra_data, res_temp)
 }
 
-## Combine residential price bins between Â£5K and Â£20K to match Higher data
+## Combine residential price bins between £5K and £20K to match Higher data
 res_temp <- wra_data[wra_data$transactionTypeCode == "RE" &
   wra_data$valueBinCode %in% c(2, 3, 4), ]
 res_temp <- as.data.frame(res_temp %>%
@@ -157,7 +157,7 @@ res_temp <- as.data.frame(res_temp %>%
   mutate(dataValue = cumsum(dataValue)))
 res_temp <- res_temp[res_temp$valueBinCode == 4, ]
 res_temp$lowBin <- 5001
-res_temp$valueBinDescription <- "Â£5,001 to Â£20,000"
+res_temp$valueBinDescription <- "£5,001 to £20,000"
 
 wra_data <- wra_data[!(wra_data$transactionTypeCode == "RE" &
   wra_data$valueBinCode %in% c(2, 3, 4)), ]
