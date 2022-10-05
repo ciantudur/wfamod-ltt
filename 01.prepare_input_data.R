@@ -36,7 +36,7 @@ for (pkg in packages_required) {
 utils::download.file(
   paste0("https://gov.wales/sites/default/files/statistics-and-research/2022-",
          "08/land-transaction-tax-statistics-detailed-analysis-of-transactions-",
-         "by-transaction-value.ods")
+         "by-transaction-value.ods"),
   destfile = "data/input/wra_data_raw.ods",
   method = "curl"
 )
