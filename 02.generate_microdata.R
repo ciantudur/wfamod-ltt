@@ -4,7 +4,7 @@
 # 02.generate_microdata.R
 
 # DATE CREATED:  21 September 2022
-# LAST MODIFIED: 04 October 2022
+# LAST MODIFIED: 05 October 2022
 # AUTHOR: Cian Sion (post@ciantudur.com)
 
 
@@ -58,7 +58,7 @@ value_bin_codes <- unique(wra_data_rm$valueBinCode)
 transactions_rm <- NULL
 
 ## For each price bin, generate transactions from probability distribution
-for (i in 1:(length(value_bin_codes))) {
+for (i in seq_along(value_bin_codes)) {
   price_bin_no <- value_bin_codes[i]
 
   ## Define variables for use in loop
@@ -80,7 +80,7 @@ for (i in 1:(length(value_bin_codes))) {
   ])
 
   ## If price bin is unbounded, assume high_bin is twice the mean value
-  if (is.na(high_bin) == T) {
+  if (is.na(high_bin) == TRUE) {
     transaction_temp <- NULL
     mean <- (as.numeric(bin_value) * 1000000 / as.numeric(transaction_n))
     high_bin <- mean * 2
@@ -96,21 +96,23 @@ for (i in 1:(length(value_bin_codes))) {
     transaction_temp <- rep(0, transaction_n)
     transactions_rm <- append(transactions_rm, transaction_temp)
   } else {
-    if (is.na(bin_value) == T) {
+    if (is.na(bin_value) == TRUE) {
       mean <- ((high_bin - low_bin) / 2) + low_bin
     } else {
       mean <- (as.numeric(bin_value) * 1000000 / as.numeric(transaction_n))
     }
 
-    ## If mean is outside price bin, replace with mean from inside the domain
-    if (mean >= high_bin) {
-      mean <- high_bin - 1000
-    } else if (mean <= low_bin) {
-      mean <- low_bin + 1000
-    } else {}
+## If mean is outside price bin, replace with mean from inside the domain
+if (mean >= high_bin) {
+  mean <- high_bin - 1000
+} else if (mean <= low_bin) {
+  mean <- low_bin + 1000
+} else {
+}
 
-    if (is.na(high_bin) == F) {
-      standard_mean <- (mean - low_bin) / (high_bin - low_bin) # Standardize mean bin transaction to [0,1] domain
+    if (is.na(high_bin) == FALSE) {
+      # Standardize mean bin transaction to [0,1] domain
+      standard_mean <- (mean - low_bin) / (high_bin - low_bin)
 
       if (standard_mean > 0.5) {
         alpha <- (-standard_mean) / (standard_mean - 1)
@@ -131,7 +133,7 @@ for (i in 1:(length(value_bin_codes))) {
           transaction_temp
         )
       } else {
-        alpha <- 1 # Beta(a = 1, b = 1) is equivalent to the uniform distribution
+        alpha <- 1 # Beta(a = 1, b = 1) is equivalent to a uniform distribution
         beta <- 1
         transaction_temp <- rbeta(transaction_n, alpha, beta)
         transaction_temp <- (transaction_temp * (high_bin - low_bin)) + low_bin
@@ -174,7 +176,7 @@ hist(transactions_rm, breaks = 200)
 
 
 
-# 2.04 GENERATE RESIDENTIAL (HIGHER) MICRODATA ----------------------------------
+# 2.04 GENERATE RESIDENTIAL (HIGHER) MICRODATA ---------------------------------
 
 ## Set seed to ensures randomly-generated values are reproducible
 set.seed(200001)
@@ -191,7 +193,7 @@ value_bin_codes <- unique(wra_data_rh$valueBinCode)
 transactions_rh <- NULL
 
 ## For each price bin, generate transactions from probability distribution
-for (i in 1:(length(value_bin_codes))) {
+for (i in seq_along(value_bin_codes)) {
   price_bin_no <- value_bin_codes[i]
 
   ## Define variables for use in loop
@@ -213,7 +215,7 @@ for (i in 1:(length(value_bin_codes))) {
   ])
 
   ## If price bin is unbounded, assume high_bin is 3x the mean value
-  if (is.na(high_bin) == T) {
+  if (is.na(high_bin) == TRUE) {
     transaction_temp <- NULL
     mean <- (as.numeric(bin_value) * 1000000 / as.numeric(transaction_n))
     high_bin <- mean * 3
@@ -229,7 +231,7 @@ for (i in 1:(length(value_bin_codes))) {
     transaction_temp <- rep(0, transaction_n)
     transactions_rh <- append(transactions_rh, transaction_temp)
   } else {
-    if (is.na(bin_value) == T) {
+    if (is.na(bin_value) == TRUE) {
       mean <- ((high_bin - low_bin) / 2) + low_bin
     } else {
       mean <- (as.numeric(bin_value) * 1000000 / as.numeric(transaction_n))
@@ -240,10 +242,12 @@ for (i in 1:(length(value_bin_codes))) {
       mean <- high_bin - 1000
     } else if (mean <= low_bin) {
       mean <- low_bin + 1000
-    } else {}
+    } else {
+    }
 
-    if (is.na(high_bin) == F) {
-      standard_mean <- (mean - low_bin) / (high_bin - low_bin) # Standardize mean bin transaction to [0,1] domain
+    if (is.na(high_bin) == FALSE) {
+      # Standardize mean bin transaction to [0,1] domain
+      standard_mean <- (mean - low_bin) / (high_bin - low_bin)
 
       if (standard_mean > 0.5) {
         alpha <- (-standard_mean) / (standard_mean - 1)
@@ -264,7 +268,7 @@ for (i in 1:(length(value_bin_codes))) {
           transaction_temp
         )
       } else {
-        alpha <- 1 # Beta(a = 1, b = 1) is equivalent to the uniform distribution
+        alpha <- 1 # Beta(a = 1, b = 1) is equivalent to uniform distribution
         beta <- 1
         transaction_temp <- rbeta(transaction_n, alpha, beta)
         transaction_temp <- (transaction_temp * (high_bin - low_bin)) + low_bin
@@ -324,7 +328,7 @@ value_bin_codes <- unique(wra_data_nrp$valueBinCode)
 transactions_nrp <- NULL
 
 ## For each price bin, generate transactions from probability distribution
-for (i in 1:(length(value_bin_codes))) {
+for (i in seq_along(value_bin_codes)) {
   price_bin_no <- value_bin_codes[i]
 
   ## Define variables for use in loop
@@ -346,7 +350,7 @@ for (i in 1:(length(value_bin_codes))) {
   ])
 
   ## If price bin is unbounded, assume high_bin is twice the mean value
-  if (is.na(high_bin) == T) {
+  if (is.na(high_bin) == TRUE) {
     transaction_temp <- NULL
     mean <- (as.numeric(bin_value) * 1000000 / as.numeric(transaction_n))
     high_bin <- mean * 2
@@ -362,7 +366,7 @@ for (i in 1:(length(value_bin_codes))) {
     transaction_temp <- rep(0, transaction_n)
     transactions_nrp <- append(transactions_nrp, transaction_temp)
   } else {
-    if (is.na(bin_value) == T) {
+    if (is.na(bin_value) == TRUE) {
       mean <- ((high_bin - low_bin) / 2) + low_bin
     } else {
       mean <- (as.numeric(bin_value) * 1000000 / as.numeric(transaction_n))
@@ -373,10 +377,12 @@ for (i in 1:(length(value_bin_codes))) {
       mean <- high_bin - 500
     } else if (mean <= low_bin) {
       mean <- low_bin + 500
-    } else {}
+    } else {
+    }
 
-    if (is.na(high_bin) == F) {
-      standard_mean <- (mean - low_bin) / (high_bin - low_bin) # Standardize mean bin transaction to [0,1] domain
+    if (is.na(high_bin) == FALSE) {
+      # Standardize mean bin transaction to [0,1] domain
+      standard_mean <- (mean - low_bin) / (high_bin - low_bin)
 
       if (standard_mean > 0.5) {
         alpha <- (-standard_mean) / (standard_mean - 1)
@@ -397,7 +403,7 @@ for (i in 1:(length(value_bin_codes))) {
           transaction_temp
         )
       } else {
-        alpha <- 1 # Beta(a = 1, b = 1) is equivalent to the uniform distribution
+        alpha <- 1 # Beta(a = 1, b = 1) is equivalent to uniform distribution
         beta <- 1
         transaction_temp <- rbeta(transaction_n, alpha, beta)
         transaction_temp <- (transaction_temp * (high_bin - low_bin)) + low_bin
@@ -457,7 +463,7 @@ value_bin_codes <- unique(wra_data_nrn$valueBinCode)
 transactions_nrn <- NULL
 
 ## For each price bin, generate transactions from probability distribution
-for (i in 1:(length(value_bin_codes))) {
+for (i in seq_along(value_bin_codes)) {
   price_bin_no <- value_bin_codes[i]
 
   ## Define variables for use in loop
@@ -484,7 +490,7 @@ for (i in 1:(length(value_bin_codes))) {
 
 
   ## If price bin is unbounded, assume high_bin is twice the mean value
-  if (is.na(high_bin) == T) {
+  if (is.na(high_bin) == TRUE) {
     transaction_temp <- NULL
     mean <- (as.numeric(bin_value) * 1000000 / as.numeric(transaction_n))
     high_bin <- mean * 2
@@ -500,7 +506,7 @@ for (i in 1:(length(value_bin_codes))) {
     transaction_temp <- rep(0, transaction_n)
     transactions_nrn <- append(transactions_nrn, transaction_temp)
   } else {
-    if (is.na(bin_value) == T) {
+    if (is.na(bin_value) == TRUE) {
       mean <- ((high_bin - low_bin) / 2) + low_bin
     } else {
       mean <- (as.numeric(bin_value) * 1000000 / as.numeric(transaction_n))
@@ -511,10 +517,12 @@ for (i in 1:(length(value_bin_codes))) {
       mean <- high_bin - 500
     } else if (mean <= low_bin) {
       mean <- low_bin + 500
-    } else {}
+    } else {
+    }
 
-    if (is.na(high_bin) == F) {
-      standard_mean <- (mean - low_bin) / (high_bin - low_bin) # Standardize mean bin transaction to [0,1] domain
+    if (is.na(high_bin) == FALSE) {
+      # Standardize mean bin transaction to [0,1] domain
+      standard_mean <- (mean - low_bin) / (high_bin - low_bin)
 
       if (standard_mean > 0.5) {
         alpha <- (-standard_mean) / (standard_mean - 1)
@@ -535,7 +543,7 @@ for (i in 1:(length(value_bin_codes))) {
           transaction_temp
         )
       } else {
-        alpha <- 1 # Beta(a = 1, b = 1) is equivalent to the uniform distribution
+        alpha <- 1 # Beta(a = 1, b = 1) is equivalent to uniform distribution
         beta <- 1
         transaction_temp <- rbeta(transaction_n, alpha, beta)
         transaction_temp <- (transaction_temp * (high_bin - low_bin)) + low_bin
@@ -608,7 +616,3 @@ write.csv(
   microdata,
   paste0("data/temp/microdata_", base_year, ".csv")
 )
-
-
-
-## END OF SCRIPT

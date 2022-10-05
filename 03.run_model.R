@@ -4,7 +4,7 @@
 # 03.run_model.R
 
 # DATE CREATED:  30 September 2022
-# LAST MODIFIED: 04 October 2022
+# LAST MODIFIED: 05 October 2022
 # AUTHOR: Cian Sion (post@ciantudur.com)
 
 
@@ -22,9 +22,6 @@
 
 
 # 3.01 INITIALIZE SCRIPT -------------------------------------------------------
-
-## Remove ## to uncomment and set file path using setwd():
-## setwd("C:/file/path/goes/here")
 
 ## Load required packages
 packages_required <- c("stats", "dplyr", "tidyr", "openxlsx", "statswalesr")
@@ -452,7 +449,7 @@ for (j in seq_along(low_bin_re)) {
   re_count <- append(re_count, re_count_temp)
 }
 
-taxTransactionModel <- sum / re_count
+tax_transaction_model <- sum / re_count
 
 tax_transaction_outturn_d <- wra_wide_bins_re$Data[
   wra_wide_bins_re$Measure_Code %in% c("D") &
@@ -466,7 +463,7 @@ tax_transaction_outturn_c <- wra_wide_bins_re$Data[
 ]
 tax_transaction_outturn <- tax_transaction_outturn_d / tax_transaction_outturn_c
 
-diff <- taxTransactionModel / (tax_transaction_outturn * 1000000)
+diff <- tax_transaction_model / (tax_transaction_outturn * 1000000)
 diff[is.na(diff)] <- 1
 
 for (j in seq_along(low_bin_re)) {
@@ -511,7 +508,7 @@ for (j in seq_along(low_bin_re)) {
   re_count <- append(re_count, re_count_temp)
 }
 
-taxTransactionModel <- sum / re_count
+tax_transaction_model <- sum / re_count
 
 tax_transaction_outturn_d <- wra_wide_bins_re$Data[
   wra_wide_bins_re$Measure_Code %in% c("D") &
@@ -525,7 +522,7 @@ tax_transaction_outturn_c <- wra_wide_bins_re$Data[
 ]
 tax_transaction_outturn <- tax_transaction_outturn_d / tax_transaction_outturn_c
 
-diff <- taxTransactionModel / (tax_transaction_outturn * 1000000)
+diff <- tax_transaction_model / (tax_transaction_outturn * 1000000)
 diff[is.na(diff)] <- 1
 
 for (j in seq_along(low_bin_re)) {
@@ -586,7 +583,7 @@ for (j in seq_along(low_bin_re)) {
   re_count <- append(re_count, re_count_temp)
 }
 
-taxTransactionModel <- sum / re_count
+tax_transaction_model <- sum / re_count
 
 tax_transaction_outturn_d <- wra_wide_bins_nonres$Data[
   wra_wide_bins_nonres$Measure_Code %in% c("D") &
@@ -598,7 +595,7 @@ tax_transaction_outturn_c <- wra_wide_bins_nonres$Data[
 ]
 tax_transaction_outturn <- tax_transaction_outturn_d / tax_transaction_outturn_c
 
-diff <- taxTransactionModel / (tax_transaction_outturn * 1000000)
+diff <- tax_transaction_model / (tax_transaction_outturn * 1000000)
 diff[is.na(diff)] <- 1
 
 for (j in seq_along(low_bin_re)) {
@@ -631,7 +628,7 @@ re_count <- length(microdata_taxdue$taxDue[
     microdata_taxdue$transactionTypeCode == "NRN"
 ])
 
-taxTransactionModel <- sum / re_count
+tax_transaction_model <- sum / re_count
 
 tax_transaction_outturn_d <- wra_wide_bins_nonres$Data[
   wra_wide_bins_nonres$Measure_Code %in% c("D") &
@@ -643,7 +640,7 @@ tax_transaction_outturn_c <- wra_wide_bins_nonres$Data[
 ]
 tax_transaction_outturn <- tax_transaction_outturn_d / tax_transaction_outturn_c
 
-diff <- taxTransactionModel / (tax_transaction_outturn * 1000000)
+diff <- tax_transaction_model / (tax_transaction_outturn * 1000000)
 diff[is.na(diff)] <- 1
 
 microdata_taxdue$taxDue[

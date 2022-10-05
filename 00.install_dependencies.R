@@ -4,7 +4,7 @@
 # 00.install_dependencies.R
 
 # DATE CREATED:  27 September 2022
-# LAST MODIFIED: 03 September 2022
+# LAST MODIFIED: 05 September 2022
 # AUTHOR: Cian Sion (post@ciantudur.com)
 
 

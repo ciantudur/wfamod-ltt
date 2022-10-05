@@ -4,7 +4,7 @@
 # 01.prepare_input_data.R
 
 # DATE CREATED:  21 September 2022
-# LAST MODIFIED: 04 October 2022
+# LAST MODIFIED: 05 October 2022
 # AUTHOR: Cian Sion (post@ciantudur.com)
 
 
@@ -35,15 +35,15 @@ for (pkg in packages_required) {
 ## Download data from StatsWales
 utils::download.file(
   paste0("https://gov.wales/sites/default/files/statistics-and-research/2022-",
-         "08/land-transaction-tax-statistics-detailed-analysis-of-transactions-",
-         "by-transaction-value.ods"),
+         "08/land-transaction-tax-statistics-detailed-analysis-of-transactions",
+         "-by-transaction-value.ods"),
   destfile = "data/input/wra_data_raw.ods",
   method = "curl"
 )
 
 ## Read StatsWales .ods file and convert to dataframe
 message("Parsing data...")
-wra_data_raw <- readODS::read_ods("data/input/wra.ods",
+wra_data_raw <- readODS::read_ods("data/input/wra_data_raw.ods",
   sheet = "Table_1",
   skip = 3
 )
@@ -128,7 +128,7 @@ new_bin_description <- c(
 new_low_bin <- c(350001, 360001, 370001, 380001, 390001, 650001)
 res_temp <- NULL
 
-for (i in 1:length(missing_pricebins)) {
+for (i in seq_along(missing_pricebins)) {
   res_temp <- wra_data[wra_data$transactionTypeCode == "RE" &
     wra_data$valueBinCode %in% c(
       missing_pricebins[i],
@@ -226,7 +226,3 @@ wra_data <- arrange(
 ## Save cleaned data for use in next script
 wra_data_cleaned <- wra_data
 write.csv(wra_data_cleaned, "data/temp/wra_data_cleaned.csv")
-
-
-
-## END OF SCRIPT
