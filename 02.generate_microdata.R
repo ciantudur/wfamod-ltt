@@ -20,13 +20,10 @@
 
 # 2.01 INITIALIZE SCRIPT -------------------------------------------------------
 
-## Remove ## to uncomment and set file path using setwd():
-## setwd("C:/file/path/goes/here")
-
 ## Load required packages
 packages_required <- c("stats", "dplyr")
 for (pkg in packages_required) {
-  require(pkg, character.only = T)
+  require(pkg, character.only = TRUE)
 }
 
 ## Set a base year (FYE) for the model (e.g. use 2022 for 2021-22 fiscal year)

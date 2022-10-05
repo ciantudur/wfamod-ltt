@@ -29,7 +29,7 @@
 ## Load required packages
 packages_required <- c("stats", "dplyr", "tidyr", "openxlsx", "statswalesr")
 for (pkg in packages_required) {
-  require(pkg, character.only = T)
+  require(pkg, character.only = TRUE)
 }
 
 ## Set a base year (FYE) for the model (e.g. use 2022 for 2021-22 fiscal year)
@@ -71,7 +71,7 @@ microdata_uprated <- NULL
 microdata_temp <- microdata
 
 ## For each year to forecast, duplicate transactions in new data frame
-for (i in 1:length(years_to_forecast)) {
+for (i in seq_along(years_to_forecast)) {
   year <- years_to_forecast[i]
   df_name <- paste("microdata_", year, sep = "")
   microdata_temp$yearCode <- year
@@ -205,8 +205,8 @@ years_multi_weight <- years_to_forecast[!years_to_forecast %in%
 
 
 ## Define brackets and tax schedule for years with one weight
-for (i in 1:length(transaction_type)) {
-  for (j in 1:length(years_one_weight)) {
+for (i in seq_along(transaction_type)) {
+  for (j in seq_along(years_one_weight)) {
     name_bracket <- paste("brackets_", transaction_type[i],
       years_one_weight[j],
       sep = ""
@@ -227,13 +227,13 @@ for (i in 1:length(transaction_type)) {
 }
 
 ## Define brackets and tax schedule for years with multiple weights
-for (i in 1:length(transaction_type)) {
-  for (j in 1:length(years_multi_weight)) {
+for (i in seq_along(transaction_type)) {
+  for (j in seq_along(years_multi_weight)) {
     schedule_id <- unique(tax_schedule$inYearCount[
       tax_schedule$transactionTypeCode == transaction_type[i] &
         tax_schedule$fiscalYearEnding == years_multi_weight[j]
     ])
-    for (k in 1:length(schedule_id)) {
+    for (k in seq_along(schedule_id)) {
       name_bracket <- paste("brackets_", transaction_type[i],
         years_multi_weight[j],
         schedule_id[k],
@@ -268,8 +268,8 @@ microdata_temp <- data.frame(NULL)
 tax_due <- data.frame(NULL)
 
 ## For each year (1 weight) and transaction type, calculate tax due
-for (i in 1:length(years_one_weight)) {
-  for (j in 1:length(transaction_type)) {
+for (i in seq_along(years_one_weight)) {
+  for (j in seq_along(transaction_type)) {
     year <- years_one_weight[i]
     transaction <- transaction_type[j]
 
@@ -318,9 +318,9 @@ tax_due2 <- data.frame(NULL)
 
 ## If there are years with in-year tax changes, calculate tax due here
 if (length(years_multi_weight) != 0) {
-  for (i in 1:length(years_multi_weight)) {
+  for (i in seq_along(years_multi_weight)) {
     year <- years_multi_weight[i]
-    inYearCount <- unique(tax_schedule$inYearCount[
+    in_year_count <- unique(tax_schedule$inYearCount[
       tax_schedule$fiscalYearEnding == year
     ])
     weights <- tax_schedule$weight[
@@ -348,13 +348,13 @@ if (length(years_multi_weight) != 0) {
       j <- j + 1
     }
     microdata_temp2$taxScheduleID[microdata_temp2$taxScheduleID == 0] <-
-      max(inYearCount)
+      max(in_year_count)
 
     ## Calculate tax due for each transaction type and tax schedule
-    for (j in 1:length(transaction_type)) {
+    for (j in seq_along(transaction_type)) {
       transaction <- transaction_type[j]
-      for (k in 1:length(inYearCount)) {
-        tax_id <- inYearCount[k]
+      for (k in seq_along(in_year_count)) {
+        tax_id <- in_year_count[k]
 
         ## Subset transactions by type and year
         microdata_temp3 <- subset(
@@ -398,7 +398,10 @@ if (nrow(microdata_taxdue2) > 0) {
 }
 
 ## Save microdata (before reliefs) as csv file
-write.csv(microdata_taxdue, paste0("output/microdata_output_gross_reliefs_", base_year, ".csv"))
+write.csv(microdata_taxdue, paste0(
+  "output/microdata_output_gross_reliefs_",
+  base_year, ".csv"
+))
 
 
 
@@ -423,7 +426,7 @@ transaction_value_code <- c(101, 102, 103, 104, 105, 106)
 
 sum_temp <- NULL
 sum <- NULL
-for (j in 1:length(low_bin_re)) {
+for (j in seq_along(low_bin_re)) {
   low_bin <- low_bin_re[j]
   high_bin <- high_bin_re[j]
   sum_temp <- sum(microdata_taxdue$taxDue[
@@ -437,7 +440,7 @@ for (j in 1:length(low_bin_re)) {
 
 re_count_temp <- NULL
 re_count <- NULL
-for (j in 1:length(low_bin_re)) {
+for (j in seq_along(low_bin_re)) {
   low_bin <- low_bin_re[j]
   high_bin <- high_bin_re[j]
   re_count_temp <- length(microdata_taxdue$taxDue[
@@ -451,22 +454,22 @@ for (j in 1:length(low_bin_re)) {
 
 taxTransactionModel <- sum / re_count
 
-taxTransactionOutturnD <- wra_wide_bins_re$Data[
+tax_transaction_outturn_d <- wra_wide_bins_re$Data[
   wra_wide_bins_re$Measure_Code %in% c("D") &
     wra_wide_bins_re$Transactiontype_Code == "RS" &
     wra_wide_bins_re$Transactionvalue_SortOrder != 100
 ]
-taxTransactionOutturnC <- wra_wide_bins_re$Data[
+tax_transaction_outturn_c <- wra_wide_bins_re$Data[
   wra_wide_bins_re$Measure_Code %in% c("C") &
     wra_wide_bins_re$Transactiontype_Code == "RS" &
     wra_wide_bins_re$Transactionvalue_SortOrder != 100
 ]
-taxTransactionOutturn <- taxTransactionOutturnD / taxTransactionOutturnC
+tax_transaction_outturn <- tax_transaction_outturn_d / tax_transaction_outturn_c
 
-diff <- taxTransactionModel / (taxTransactionOutturn * 1000000)
+diff <- taxTransactionModel / (tax_transaction_outturn * 1000000)
 diff[is.na(diff)] <- 1
 
-for (j in 1:length(low_bin_re)) {
+for (j in seq_along(low_bin_re)) {
   microdata_taxdue$taxDue[microdata_taxdue$transactionTypeCode == "RM" &
     microdata_taxdue$transactionValue > low_bin_re[j] &
     microdata_taxdue$transactionValue <= high_bin_re[j]] <-
@@ -482,7 +485,7 @@ wra_wide_bins_re <- wra_wide_bins_re[
 
 sum_temp <- NULL
 sum <- NULL
-for (j in 1:length(low_bin_re)) {
+for (j in seq_along(low_bin_re)) {
   low_bin <- low_bin_re[j]
   high_bin <- high_bin_re[j]
   sum_temp <- sum(microdata_taxdue$taxDue[
@@ -496,7 +499,7 @@ for (j in 1:length(low_bin_re)) {
 
 re_count_temp <- NULL
 re_count <- NULL
-for (j in 1:length(low_bin_re)) {
+for (j in seq_along(low_bin_re)) {
   low_bin <- low_bin_re[j]
   high_bin <- high_bin_re[j]
   re_count_temp <- length(microdata_taxdue$taxDue[
@@ -510,22 +513,22 @@ for (j in 1:length(low_bin_re)) {
 
 taxTransactionModel <- sum / re_count
 
-taxTransactionOutturnD <- wra_wide_bins_re$Data[
+tax_transaction_outturn_d <- wra_wide_bins_re$Data[
   wra_wide_bins_re$Measure_Code %in% c("D") &
     wra_wide_bins_re$Transactiontype_Code == "RH" &
     wra_wide_bins_re$Transactionvalue_SortOrder != 100
 ]
-taxTransactionOutturnC <- wra_wide_bins_re$Data[
+tax_transaction_outturn_c <- wra_wide_bins_re$Data[
   wra_wide_bins_re$Measure_Code %in% c("C") &
     wra_wide_bins_re$Transactiontype_Code == "RH" &
     wra_wide_bins_re$Transactionvalue_SortOrder != 100
 ]
-taxTransactionOutturn <- taxTransactionOutturnD / taxTransactionOutturnC
+tax_transaction_outturn <- tax_transaction_outturn_d / tax_transaction_outturn_c
 
-diff <- taxTransactionModel / (taxTransactionOutturn * 1000000)
+diff <- taxTransactionModel / (tax_transaction_outturn * 1000000)
 diff[is.na(diff)] <- 1
 
-for (j in 1:length(low_bin_re)) {
+for (j in seq_along(low_bin_re)) {
   microdata_taxdue$taxDue[
     microdata_taxdue$transactionTypeCode == "RH" &
       microdata_taxdue$transactionValue > low_bin_re[j] &
@@ -557,7 +560,7 @@ transaction_value_code <- c(201, 202, 203, 204, 205, 206)
 
 sum_temp <- NULL
 sum <- NULL
-for (j in 1:length(low_bin_re)) {
+for (j in seq_along(low_bin_re)) {
   low_bin <- low_bin_re[j]
   high_bin <- high_bin_re[j]
   sum_temp <- sum(microdata_taxdue$taxDue[
@@ -571,7 +574,7 @@ for (j in 1:length(low_bin_re)) {
 
 re_count_temp <- NULL
 re_count <- NULL
-for (j in 1:length(low_bin_re)) {
+for (j in seq_along(low_bin_re)) {
   low_bin <- low_bin_re[j]
   high_bin <- high_bin_re[j]
   re_count_temp <- length(microdata_taxdue$taxDue[
@@ -585,20 +588,20 @@ for (j in 1:length(low_bin_re)) {
 
 taxTransactionModel <- sum / re_count
 
-taxTransactionOutturnD <- wra_wide_bins_nonres$Data[
+tax_transaction_outturn_d <- wra_wide_bins_nonres$Data[
   wra_wide_bins_nonres$Measure_Code %in% c("D") &
     wra_wide_bins_nonres$Transactionvalue_SortOrder %in% transaction_value_code
 ]
-taxTransactionOutturnC <- wra_wide_bins_nonres$Data[
+tax_transaction_outturn_c <- wra_wide_bins_nonres$Data[
   wra_wide_bins_nonres$Measure_Code %in% c("C") &
     wra_wide_bins_nonres$Transactionvalue_SortOrder %in% transaction_value_code
 ]
-taxTransactionOutturn <- taxTransactionOutturnD / taxTransactionOutturnC
+tax_transaction_outturn <- tax_transaction_outturn_d / tax_transaction_outturn_c
 
-diff <- taxTransactionModel / (taxTransactionOutturn * 1000000)
+diff <- taxTransactionModel / (tax_transaction_outturn * 1000000)
 diff[is.na(diff)] <- 1
 
-for (j in 1:length(low_bin_re)) {
+for (j in seq_along(low_bin_re)) {
   microdata_taxdue$taxDue[
     microdata_taxdue$transactionTypeCode == "NRP" &
       microdata_taxdue$transactionValue > low_bin_re[j] &
@@ -630,17 +633,17 @@ re_count <- length(microdata_taxdue$taxDue[
 
 taxTransactionModel <- sum / re_count
 
-taxTransactionOutturnD <- wra_wide_bins_nonres$Data[
+tax_transaction_outturn_d <- wra_wide_bins_nonres$Data[
   wra_wide_bins_nonres$Measure_Code %in% c("D") &
     wra_wide_bins_nonres$Transactionvalue_SortOrder == 300
 ]
-taxTransactionOutturnC <- wra_wide_bins_nonres$Data[
+tax_transaction_outturn_c <- wra_wide_bins_nonres$Data[
   wra_wide_bins_nonres$Measure_Code %in% c("C") &
     wra_wide_bins_nonres$Transactionvalue_SortOrder == 300
 ]
-taxTransactionOutturn <- taxTransactionOutturnD / taxTransactionOutturnC
+tax_transaction_outturn <- tax_transaction_outturn_d / tax_transaction_outturn_c
 
-diff <- taxTransactionModel / (taxTransactionOutturn * 1000000)
+diff <- taxTransactionModel / (tax_transaction_outturn * 1000000)
 diff[is.na(diff)] <- 1
 
 microdata_taxdue$taxDue[
@@ -703,7 +706,7 @@ for (i in fye) {
 
 ## Get data for Detailed Results sheet
 l16b <- NULL
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- length(microdata_final$transactionValue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("RM", "RH", "NRP")
@@ -711,7 +714,7 @@ for (i in 1:length(fye)) {
   l16b <- append(l16b, c(value, 0, 0))
 }
 n <- 2
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- sum(microdata_final$transactionValue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c()
@@ -720,7 +723,7 @@ for (i in 1:length(fye)) {
   n <- n + 3
 }
 n <- 3
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- sum(microdata_final$taxDue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("RM", "RH", "NRP", "NRN")
@@ -730,7 +733,7 @@ for (i in 1:length(fye)) {
 }
 
 l17b <- NULL
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- length(microdata_final$transactionValue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("RM", "RH")
@@ -738,7 +741,7 @@ for (i in 1:length(fye)) {
   l17b <- append(l17b, c(value, 0, 0))
 }
 n <- 2
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- sum(microdata_final$transactionValue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("RM", "RH")
@@ -747,7 +750,7 @@ for (i in 1:length(fye)) {
   n <- n + 3
 }
 n <- 3
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- sum(microdata_final$taxDue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("RM", "RH")
@@ -757,7 +760,7 @@ for (i in 1:length(fye)) {
 }
 
 l18b <- NULL
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- length(microdata_final$transactionValue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("RM")
@@ -765,7 +768,7 @@ for (i in 1:length(fye)) {
   l18b <- append(l18b, c(value, 0, 0))
 }
 n <- 2
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- sum(microdata_final$transactionValue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("RM")
@@ -774,7 +777,7 @@ for (i in 1:length(fye)) {
   n <- n + 3
 }
 n <- 3
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- sum(microdata_final$taxDue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("RM")
@@ -784,7 +787,7 @@ for (i in 1:length(fye)) {
 }
 
 l19b <- NULL
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- length(microdata_final$transactionValue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("RM") &
@@ -794,7 +797,7 @@ for (i in 1:length(fye)) {
   l19b <- append(l19b, c(value, 0, 0))
 }
 n <- 2
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- sum(microdata_final$transactionValue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("RM") &
@@ -805,7 +808,7 @@ for (i in 1:length(fye)) {
   n <- n + 3
 }
 n <- 3
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- sum(microdata_final$taxDue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("RM") &
@@ -817,7 +820,7 @@ for (i in 1:length(fye)) {
 }
 
 l20b <- NULL
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- length(microdata_final$transactionValue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("RM") &
@@ -827,7 +830,7 @@ for (i in 1:length(fye)) {
   l20b <- append(l20b, c(value, 0, 0))
 }
 n <- 2
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- sum(microdata_final$transactionValue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("RM") &
@@ -838,7 +841,7 @@ for (i in 1:length(fye)) {
   n <- n + 3
 }
 n <- 3
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- sum(microdata_final$taxDue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("RM") &
@@ -850,7 +853,7 @@ for (i in 1:length(fye)) {
 }
 
 l21b <- NULL
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- length(microdata_final$transactionValue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("RM") &
@@ -860,7 +863,7 @@ for (i in 1:length(fye)) {
   l21b <- append(l21b, c(value, 0, 0))
 }
 n <- 2
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- sum(microdata_final$transactionValue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("RM") &
@@ -871,7 +874,7 @@ for (i in 1:length(fye)) {
   n <- n + 3
 }
 n <- 3
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- sum(microdata_final$taxDue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("RM") &
@@ -883,7 +886,7 @@ for (i in 1:length(fye)) {
 }
 
 l22b <- NULL
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- length(microdata_final$transactionValue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("RM") &
@@ -893,7 +896,7 @@ for (i in 1:length(fye)) {
   l22b <- append(l22b, c(value, 0, 0))
 }
 n <- 2
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- sum(microdata_final$transactionValue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("RM") &
@@ -904,7 +907,7 @@ for (i in 1:length(fye)) {
   n <- n + 3
 }
 n <- 3
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- sum(microdata_final$taxDue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("RM") &
@@ -916,7 +919,7 @@ for (i in 1:length(fye)) {
 }
 
 l23b <- NULL
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- length(microdata_final$transactionValue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("RM") &
@@ -926,7 +929,7 @@ for (i in 1:length(fye)) {
   l23b <- append(l23b, c(value, 0, 0))
 }
 n <- 2
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- sum(microdata_final$transactionValue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("RM") &
@@ -937,7 +940,7 @@ for (i in 1:length(fye)) {
   n <- n + 3
 }
 n <- 3
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- sum(microdata_final$taxDue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("RM") &
@@ -949,7 +952,7 @@ for (i in 1:length(fye)) {
 }
 
 l24b <- NULL
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- length(microdata_final$transactionValue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("RM") &
@@ -959,7 +962,7 @@ for (i in 1:length(fye)) {
   l24b <- append(l24b, c(value, 0, 0))
 }
 n <- 2
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- sum(microdata_final$transactionValue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("RM") &
@@ -970,7 +973,7 @@ for (i in 1:length(fye)) {
   n <- n + 3
 }
 n <- 3
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- sum(microdata_final$taxDue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("RM") &
@@ -982,7 +985,7 @@ for (i in 1:length(fye)) {
 }
 
 l25b <- NULL
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- length(microdata_final$transactionValue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("RM") &
@@ -991,7 +994,7 @@ for (i in 1:length(fye)) {
   l25b <- append(l25b, c(value, 0, 0))
 }
 n <- 2
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- sum(microdata_final$transactionValue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("RM") &
@@ -1001,7 +1004,7 @@ for (i in 1:length(fye)) {
   n <- n + 3
 }
 n <- 3
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- sum(microdata_final$taxDue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("RM") &
@@ -1014,7 +1017,7 @@ for (i in 1:length(fye)) {
 
 
 l26b <- NULL
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- length(microdata_final$transactionValue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("RH")
@@ -1022,7 +1025,7 @@ for (i in 1:length(fye)) {
   l26b <- append(l26b, c(value, 0, 0))
 }
 n <- 2
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- sum(microdata_final$transactionValue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("RH")
@@ -1031,7 +1034,7 @@ for (i in 1:length(fye)) {
   n <- n + 3
 }
 n <- 3
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- sum(microdata_final$taxDue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("RH")
@@ -1041,7 +1044,7 @@ for (i in 1:length(fye)) {
 }
 
 l27b <- NULL
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- length(microdata_final$transactionValue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("RH") &
@@ -1051,7 +1054,7 @@ for (i in 1:length(fye)) {
   l27b <- append(l27b, c(value, 0, 0))
 }
 n <- 2
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- sum(microdata_final$transactionValue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("RH") &
@@ -1062,7 +1065,7 @@ for (i in 1:length(fye)) {
   n <- n + 3
 }
 n <- 3
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- sum(microdata_final$taxDue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("RH") &
@@ -1074,7 +1077,7 @@ for (i in 1:length(fye)) {
 }
 
 l28b <- NULL
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- length(microdata_final$transactionValue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("RH") &
@@ -1084,7 +1087,7 @@ for (i in 1:length(fye)) {
   l28b <- append(l28b, c(value, 0, 0))
 }
 n <- 2
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- sum(microdata_final$transactionValue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("RH") &
@@ -1095,7 +1098,7 @@ for (i in 1:length(fye)) {
   n <- n + 3
 }
 n <- 3
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- sum(microdata_final$taxDue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("RH") &
@@ -1107,7 +1110,7 @@ for (i in 1:length(fye)) {
 }
 
 l29b <- NULL
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- length(microdata_final$transactionValue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("RH") &
@@ -1117,7 +1120,7 @@ for (i in 1:length(fye)) {
   l29b <- append(l29b, c(value, 0, 0))
 }
 n <- 2
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- sum(microdata_final$transactionValue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("RH") &
@@ -1128,7 +1131,7 @@ for (i in 1:length(fye)) {
   n <- n + 3
 }
 n <- 3
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- sum(microdata_final$taxDue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("RH") &
@@ -1140,7 +1143,7 @@ for (i in 1:length(fye)) {
 }
 
 l30b <- NULL
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- length(microdata_final$transactionValue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("RH") &
@@ -1150,7 +1153,7 @@ for (i in 1:length(fye)) {
   l30b <- append(l30b, c(value, 0, 0))
 }
 n <- 2
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- sum(microdata_final$transactionValue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("RH") &
@@ -1161,7 +1164,7 @@ for (i in 1:length(fye)) {
   n <- n + 3
 }
 n <- 3
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- sum(microdata_final$taxDue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("RH") &
@@ -1173,7 +1176,7 @@ for (i in 1:length(fye)) {
 }
 
 l31b <- NULL
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- length(microdata_final$transactionValue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("RH") &
@@ -1183,7 +1186,7 @@ for (i in 1:length(fye)) {
   l31b <- append(l31b, c(value, 0, 0))
 }
 n <- 2
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- sum(microdata_final$transactionValue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("RH") &
@@ -1194,7 +1197,7 @@ for (i in 1:length(fye)) {
   n <- n + 3
 }
 n <- 3
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- sum(microdata_final$taxDue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("RH") &
@@ -1206,7 +1209,7 @@ for (i in 1:length(fye)) {
 }
 
 l32b <- NULL
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- length(microdata_final$transactionValue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("RH") &
@@ -1216,7 +1219,7 @@ for (i in 1:length(fye)) {
   l32b <- append(l32b, c(value, 0, 0))
 }
 n <- 2
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- sum(microdata_final$transactionValue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("RH") &
@@ -1227,7 +1230,7 @@ for (i in 1:length(fye)) {
   n <- n + 3
 }
 n <- 3
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- sum(microdata_final$taxDue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("RH") &
@@ -1239,7 +1242,7 @@ for (i in 1:length(fye)) {
 }
 
 l33b <- NULL
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- length(microdata_final$transactionValue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("RH") &
@@ -1248,7 +1251,7 @@ for (i in 1:length(fye)) {
   l33b <- append(l33b, c(value, 0, 0))
 }
 n <- 2
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- sum(microdata_final$transactionValue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("RH") &
@@ -1258,7 +1261,7 @@ for (i in 1:length(fye)) {
   n <- n + 3
 }
 n <- 3
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- sum(microdata_final$taxDue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("RH") &
@@ -1270,7 +1273,7 @@ for (i in 1:length(fye)) {
 
 
 l34b <- NULL
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- length(microdata_final$transactionValue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("NRP")
@@ -1278,7 +1281,7 @@ for (i in 1:length(fye)) {
   l34b <- append(l34b, c(value, 0, 0))
 }
 n <- 2
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- sum(microdata_final$transactionValue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c()
@@ -1287,7 +1290,7 @@ for (i in 1:length(fye)) {
   n <- n + 3
 }
 n <- 3
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- sum(microdata_final$taxDue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("NRP", "NRN")
@@ -1297,7 +1300,7 @@ for (i in 1:length(fye)) {
 }
 
 l35b <- NULL
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- length(microdata_final$transactionValue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("NRP")
@@ -1305,7 +1308,7 @@ for (i in 1:length(fye)) {
   l35b <- append(l35b, c(value, 0, 0))
 }
 n <- 2
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- sum(microdata_final$transactionValue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("NRP")
@@ -1314,7 +1317,7 @@ for (i in 1:length(fye)) {
   n <- n + 3
 }
 n <- 3
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- sum(microdata_final$taxDue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("NRP")
@@ -1324,7 +1327,7 @@ for (i in 1:length(fye)) {
 }
 
 l36b <- NULL
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- length(microdata_final$transactionValue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("NRP") &
@@ -1334,7 +1337,7 @@ for (i in 1:length(fye)) {
   l36b <- append(l36b, c(value, 0, 0))
 }
 n <- 2
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- sum(microdata_final$transactionValue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("NRP") &
@@ -1345,7 +1348,7 @@ for (i in 1:length(fye)) {
   n <- n + 3
 }
 n <- 3
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- sum(microdata_final$taxDue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("NRP") &
@@ -1357,7 +1360,7 @@ for (i in 1:length(fye)) {
 }
 
 l37b <- NULL
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- length(microdata_final$transactionValue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("NRP") &
@@ -1367,7 +1370,7 @@ for (i in 1:length(fye)) {
   l37b <- append(l37b, c(value, 0, 0))
 }
 n <- 2
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- sum(microdata_final$transactionValue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("NRP") &
@@ -1378,7 +1381,7 @@ for (i in 1:length(fye)) {
   n <- n + 3
 }
 n <- 3
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- sum(microdata_final$taxDue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("NRP") &
@@ -1390,7 +1393,7 @@ for (i in 1:length(fye)) {
 }
 
 l38b <- NULL
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- length(microdata_final$transactionValue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("NRP") &
@@ -1400,7 +1403,7 @@ for (i in 1:length(fye)) {
   l38b <- append(l38b, c(value, 0, 0))
 }
 n <- 2
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- sum(microdata_final$transactionValue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("NRP") &
@@ -1411,7 +1414,7 @@ for (i in 1:length(fye)) {
   n <- n + 3
 }
 n <- 3
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- sum(microdata_final$taxDue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("NRP") &
@@ -1423,7 +1426,7 @@ for (i in 1:length(fye)) {
 }
 
 l39b <- NULL
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- length(microdata_final$transactionValue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("NRP") &
@@ -1433,7 +1436,7 @@ for (i in 1:length(fye)) {
   l39b <- append(l39b, c(value, 0, 0))
 }
 n <- 2
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- sum(microdata_final$transactionValue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("NRP") &
@@ -1444,7 +1447,7 @@ for (i in 1:length(fye)) {
   n <- n + 3
 }
 n <- 3
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- sum(microdata_final$taxDue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("NRP") &
@@ -1456,7 +1459,7 @@ for (i in 1:length(fye)) {
 }
 
 l40b <- NULL
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- length(microdata_final$transactionValue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("NRP") &
@@ -1466,7 +1469,7 @@ for (i in 1:length(fye)) {
   l40b <- append(l40b, c(value, 0, 0))
 }
 n <- 2
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- sum(microdata_final$transactionValue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("NRP") &
@@ -1477,7 +1480,7 @@ for (i in 1:length(fye)) {
   n <- n + 3
 }
 n <- 3
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- sum(microdata_final$taxDue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("NRP") &
@@ -1489,7 +1492,7 @@ for (i in 1:length(fye)) {
 }
 
 l41b <- NULL
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- length(microdata_final$transactionValue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("NRP") &
@@ -1498,7 +1501,7 @@ for (i in 1:length(fye)) {
   l41b <- append(l41b, c(value, 0, 0))
 }
 n <- 2
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- sum(microdata_final$transactionValue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("NRP") &
@@ -1508,7 +1511,7 @@ for (i in 1:length(fye)) {
   n <- n + 3
 }
 n <- 3
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- sum(microdata_final$taxDue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("NRP") &
@@ -1520,7 +1523,7 @@ for (i in 1:length(fye)) {
 
 
 l42b <- NULL
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- length(microdata_final$transactionValue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("NRN")
@@ -1528,7 +1531,7 @@ for (i in 1:length(fye)) {
   l42b <- append(l42b, c(value, 0, 0))
 }
 n <- 2
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- sum(microdata_final$transactionValue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("NRN")
@@ -1537,7 +1540,7 @@ for (i in 1:length(fye)) {
   n <- n + 3
 }
 n <- 3
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- sum(microdata_final$taxDue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("NRN")
@@ -1547,7 +1550,7 @@ for (i in 1:length(fye)) {
 }
 
 l43b <- NULL
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- length(microdata_final$transactionValue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("NRN") &
@@ -1557,7 +1560,7 @@ for (i in 1:length(fye)) {
   l43b <- append(l43b, c(value, 0, 0))
 }
 n <- 2
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- sum(microdata_final$transactionValue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("NRN") &
@@ -1568,7 +1571,7 @@ for (i in 1:length(fye)) {
   n <- n + 3
 }
 n <- 3
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- sum(microdata_final$taxDue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("NRN") &
@@ -1580,7 +1583,7 @@ for (i in 1:length(fye)) {
 }
 
 l44b <- NULL
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- length(microdata_final$transactionValue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("NRN") &
@@ -1590,7 +1593,7 @@ for (i in 1:length(fye)) {
   l44b <- append(l44b, c(value, 0, 0))
 }
 n <- 2
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- sum(microdata_final$transactionValue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("NRN") &
@@ -1601,7 +1604,7 @@ for (i in 1:length(fye)) {
   n <- n + 3
 }
 n <- 3
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- sum(microdata_final$taxDue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("NRN") &
@@ -1613,7 +1616,7 @@ for (i in 1:length(fye)) {
 }
 
 l45b <- NULL
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- length(microdata_final$transactionValue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("NRN") &
@@ -1622,7 +1625,7 @@ for (i in 1:length(fye)) {
   l45b <- append(l45b, c(value, 0, 0))
 }
 n <- 2
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- sum(microdata_final$transactionValue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("NRN") &
@@ -1632,7 +1635,7 @@ for (i in 1:length(fye)) {
   n <- n + 3
 }
 n <- 3
-for (i in 1:length(fye)) {
+for (i in seq_along(fye)) {
   value <- sum(microdata_final$taxDue[
     microdata_final$yearCode == fye[i] &
       microdata_final$transactionTypeCode %in% c("NRN") &
@@ -1678,7 +1681,3 @@ saveWorkbook(
   "output/results_viewer.xlsx",
   overwrite = TRUE
 )
-
-
-
-## END OF SCRIPT
