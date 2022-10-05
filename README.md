@@ -11,7 +11,7 @@
     A microsimulation model to forecast Land Transaction Tax revenue in Wales.
   </p>
   <p align="center">
-    <a href="https://github.com/ciantudur/wfamod-ltt/wiki">Visit the project wiki</a>
+    <a href="https://github.com/ciantudur/wfamod-ltt/releases">Download the model</a>
   </p>
 </div>
 
