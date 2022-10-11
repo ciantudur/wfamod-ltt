@@ -32,11 +32,6 @@ for (pkg in packages_required) {
 ## Set a base year (FYE) for the model (e.g. use 2022 for 2021-22 fiscal year)
 base_year <- 2022
 
-## Define custom function for calculating tax due
-ltt_tax <- function(income, brackets, rates) {
-  sum(diff(c(0, pmin(income, brackets))) * rates)
-}
-
 ## Set seed to ensures randomly-generated values are reproducible
 set.seed(500001)
 
@@ -262,18 +257,20 @@ for (i in seq_along(transaction_type)) {
 ## Generate empty data frames for loop
 microdata_taxdue <- data.frame(NULL)
 microdata_temp <- data.frame(NULL)
+transaction_values <- NULL
 tax_due <- data.frame(NULL)
 
 ## For each year (1 weight) and transaction type, calculate tax due
 for (i in seq_along(years_one_weight)) {
+  
+  message(paste(
+    "Calculating tax due for",
+    "FYE", year, "..."
+  ))
+  
   for (j in seq_along(transaction_type)) {
     year <- years_one_weight[i]
     transaction <- transaction_type[j]
-
-    message(paste(
-      "Calculating tax due for",
-      transaction, "transactions", "FYE", year, "..."
-    ))
 
     ## Subset transactions by type and year
     microdata_temp <- subset(
@@ -285,22 +282,15 @@ for (i in seq_along(years_one_weight)) {
     schedule <- get(paste0("schedule_", transaction, year))
 
     ## For each transaction in subset, calculate tax due
-    for (k in microdata_temp$transactionValue) {
-      temp_tax <- ltt_tax(
-        k,
-        brackets,
-        schedule
-      )
-      tax_due <- rbind(tax_due, temp_tax)
-    }
-
+    transaction_values <- as.vector(microdata_temp$transactionValue)
+    tax_due <- sapply(transaction_values, function(x) sum(diff(c(0, pmin(x, brackets))) * schedule)) 
+    
     ## Append tax due to microdata
-    microdata_temp$taxDue <- tax_due[, 1]
+    microdata_temp$taxDue <- tax_due
     tax_due <- NULL
     microdata_taxdue <- rbind(microdata_taxdue, microdata_temp)
-
-    message(paste("  --> Complete"))
   }
+  message(paste("  --> Complete"))
 }
 
 
@@ -312,6 +302,7 @@ microdata_taxdue2 <- data.frame(NULL)
 microdata_temp2 <- data.frame(NULL)
 microdata_temp3 <- data.frame(NULL)
 tax_due2 <- data.frame(NULL)
+transaction_values <- NULL
 
 ## If there are years with in-year tax changes, calculate tax due here
 if (length(years_multi_weight) != 0) {
@@ -334,7 +325,7 @@ if (length(years_multi_weight) != 0) {
     j <- 1
 
     ## Allocate transactions to different tax schedules based on weights
-    while (j < length((inYearCount))) {
+    while (j < length((in_year_count))) {
       microdata_temp2$taxScheduleID[microdata_temp2$taxScheduleID != 0] <-
         microdata_temp2$taxScheduleID[microdata_temp2$taxScheduleID != 0] + 1
       microdata_temp2$taxScheduleID[
@@ -365,17 +356,12 @@ if (length(years_multi_weight) != 0) {
         schedule <- get(paste0("schedule_", transaction, year, tax_id))
 
         ## For each transaction in subset, calculate tax due
-        for (l in microdata_temp3$transactionValue) {
-          temp_tax <- ltt_tax(
-            l,
-            brackets,
-            schedule
-          )
-          tax_due2 <- rbind(tax_due2, temp_tax)
-        }
+        transaction_values <- as.vector(microdata_temp3$transactionValue)
+        tax_due2 <- sapply(transaction_values, function(x) sum(diff(c(0, pmin(x, brackets))) * schedule)) 
+        
 
         ## Append tax due to microdata
-        microdata_temp3$taxDue <- tax_due2[, 1]
+        microdata_temp3$taxDue <- tax_due2
         tax_due2 <- NULL
         microdata_taxdue2 <- rbind(microdata_taxdue2, microdata_temp3)
       }
