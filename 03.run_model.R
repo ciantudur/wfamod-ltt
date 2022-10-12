@@ -46,8 +46,8 @@ microdata <- read.csv(paste0(
 ), sep = ",")
 tax_schedule <- read.csv("data/input/tax_schedule.csv", sep = ",")
 parameters <- read.csv("data/input/forecast_parameters.csv", sep = ",")
-wra_wide_bins_re <- statswales_get_dataset("WRAx0003")
-wra_wide_bins_nonres <- statswales_get_dataset("WRAX0004 ")
+wra_wide_bins_re <- read.csv("data/input/wra_wide_bins_re.csv")
+wra_wide_bins_nonres <- read.csv("data/input/wra_wide_bins_nonres.csv")
 
 
 ## Subset data frame to exclude empty rows
