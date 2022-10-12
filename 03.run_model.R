@@ -24,7 +24,7 @@
 # 3.01 INITIALIZE SCRIPT -------------------------------------------------------
 
 ## Load required packages
-packages_required <- c("stats", "dplyr", "tidyr", "openxlsx", "statswalesr")
+packages_required <- c("stats", "dplyr", "tidyr", "openxlsx")
 for (pkg in packages_required) {
   require(pkg, character.only = TRUE)
 }
