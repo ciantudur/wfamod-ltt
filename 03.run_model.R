@@ -173,6 +173,55 @@ for (i in seq_along(years_to_forecast)) {
   microdata_uprated <- rbind(microdata_uprated, assign(df_name, microdata_temp))
 }
 
+## Simulate higher/main rate switching
+for (i in seq_along(years_to_forecast)) {
+  year <- years_to_forecast[i]
+  switch_param <- parameters$higherSwitch[parameters$fiscalYearEnding == year]
+  
+  if (switch_param > 0) {
+    length <- length(microdata_uprated$transactionValue[
+      microdata_uprated$transactionTypeCode == "RM" &
+        microdata_uprated$yearCode == year
+    ])
+    
+    ## Probability that an RM transaction switches to RH
+    switch_index <- rbinom(length, 1, switch_param)
+    
+    microdata_uprated$switch_index[
+      microdata_uprated$transactionTypeCode == "RM" &
+        microdata_uprated$yearCode == year
+    ] <- switch_index
+    
+    microdata_uprated$transactionTypeCode[
+      microdata_uprated$switch_index == 1 &
+        microdata_uprated$yearCode == year
+    ] <- "RH"
+  
+    } else if (switch_param < 0) {
+      
+    length <- length(microdata_uprated$transactionValue[
+      microdata_uprated$transactionTypeCode == "RH" &
+        microdata_uprated$yearCode == year
+    ])
+    
+    ## Probability that an RH transaction switches to RM
+    switch_index <- rbinom(length, 1, switch_param * -1)
+    
+    microdata_uprated$switch_index[
+      microdata_uprated$transactionTypeCode == "RH" &
+        microdata_uprated$yearCode == year
+    ] <- switch_index
+    
+    microdata_uprated$transactionTypeCode[
+      microdata_uprated$switch_index == 1 &
+        microdata_uprated$yearCode == year
+    ] <- "RM"
+  
+    } else {
+
+  }
+}
+
 ## Drop redundant variables
 microdata_uprated <- subset(microdata_uprated, select = c(
   transactionValue,
