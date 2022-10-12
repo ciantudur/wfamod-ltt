@@ -23,7 +23,7 @@
 # 1.01 INITIALIZE SCRIPT -------------------------------------------------------
 
 ## Load required packages
-packages_required <- c("utils", "readODS", "dplyr", "stringr")
+packages_required <- c("utils", "readODS", "dplyr", "stringr", "statswalesr")
 for (pkg in packages_required) {
   require(pkg, character.only = TRUE)
 }
@@ -47,6 +47,12 @@ wra_data_raw <- readODS::read_ods("data/input/wra_data_raw.ods",
   sheet = "Table_1",
   skip = 3
 )
+
+## Get price bin data from StatsWales and save
+wra_wide_bins_re <- statswales_get_dataset("WRAx0003")
+wra_wide_bins_nonres <- statswales_get_dataset("WRAX0004 ")
+write.csv(wra_wide_bins_re, "data/input/wra_wide_bins_re.csv")
+write.csv(wra_wide_bins_nonres, "data/input/wra_wide_bins_nonres.csv")
 
 
 
