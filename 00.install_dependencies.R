@@ -5,7 +5,7 @@
 
 # DATE CREATED:  27 September 2022
 # LAST MODIFIED: 05 September 2022
-# AUTHOR: Cian Sion (post@ciantudur.com)
+# AUTHOR: Cian Sion
 
 
 # DESCRIPTION:
