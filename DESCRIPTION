@@ -3,8 +3,8 @@ Type: Package
 Title: WFAMOD - LAND TRANSACTION TAX MODEL
 Date: 2022-10-04
 Version: 0.0.0.9000
-Author: person("Cian", "Sion", "sionc1@cardiff.ac.uk", c("aut", "cre"))
-Maintainer: Cian Sion <sionc1@cardiff.ac.uk>
+Author: person("Cian", "Sion", c("aut", "cre"))
+Maintainer: Cian Sion
 Description: A microsimulation model to forecast Land Transaction Tax revenue in Wales..
 License: MIT
 Imports: dplyr, openxlsx, readODS, stringr, stats, statswalesr, tidyr, utils
