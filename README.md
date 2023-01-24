@@ -2,6 +2,9 @@
 [![Open issues](https://img.shields.io/github/issues/ciantudur/wfamod-ltt)](https://github.com/ciantudur/wfamod-ltt/issues)
 [![Version](https://img.shields.io/github/v/release/ciantudur/wfamod-ltt?display_name=tag&include_prereleases)](https://github.com/ciantudur/wfamod-ltt/releases)
 
+:bangbang: | This project is no longer actively maintained.
+:---: | :---
+
 <a name="top"></a>
 <br />
 <p align="center">
@@ -17,6 +20,8 @@
 </div>
 
 <br>
+
+
 
 <a name="top"></a> 
 <details closed>
@@ -48,7 +53,7 @@
 
 This model allows users to forecast LTT revenues in future years by specifying parameters for house price growth and transaction volume. Since the model simulates the property price distribution, users can customise the tax rates and thresholds to gauge the cost of various policies.
 
-The model is developed and maintained by Wales Fiscal Analysis – a research unit within the Wales Governance Centre at Cardiff University. Further information about the project and its research output can be found on the [Wales Governance Centre](https://www.cardiff.ac.uk/wales-governance-centre/publications/finance) website.
+The model was developed by Wales Fiscal Analysis – a research unit within the Wales Governance Centre at Cardiff University. It is no longer maintained on this repository.
 
 
 
@@ -66,35 +71,10 @@ The model is currently designed to be run locally. Prospective users should down
 * R
 * RStudio (optional but recommended)
 
-## Roadmap
-
-In addition to updating the forecast parameters using the Office for Budget Responsibility's house price and transactions forecast, we hope to continue developing the model by adding new features and improving user accessibility.
-
-
-- [X] First public release (v1.0.0-beta) **(October 2022)**
-- [ ] Update parameters using latest OBR forecast **(Late 2022)**
-- [ ] Launch online web interface **(TBC)**
-
-See the [open issues](https://github.com/ciantudur/wfamod-ltt/issues) for a full list of proposed features (and known issues).
-
-If you have suggestions that would improve the model, please fork the repo and create a pull request. Alternatively, you can open an issue with the tag "enhancement" or get in touch.
 
 ## License
 
 Distributed under the MIT License. See `LICENSE.txt` for more information.
-
-
-## Contact
-
-Cian Sion - [@ciantudur](https://twitter.com/ciantudur) - sionc1@cardiff.ac.uk
-
-Project Link: [https://github.com/ciantudur/wfamod-ltt](https://github.com/ciantudur/wfamod-ltt)
-
-
-## Acknowledgments
-This model has been made possible by the following open-source projects:
-
-* [R Project]()
 
 
 
