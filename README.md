@@ -53,8 +53,7 @@
 
 This model allows users to forecast LTT revenues in future years by specifying parameters for house price growth and transaction volume. Since the model simulates the property price distribution, users can customise the tax rates and thresholds to gauge the cost of various policies.
 
-The model was developed by Wales Fiscal Analysis – a research unit within the Wales Governance Centre at Cardiff University. **It is no longer actively maintained on this repository.
-**
+The model was developed by Wales Fiscal Analysis – a research unit within the Wales Governance Centre at Cardiff University. **It is no longer actively maintained on this repository.**
 
 
 ### Built With
